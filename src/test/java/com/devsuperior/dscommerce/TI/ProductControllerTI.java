@@ -125,4 +125,22 @@ public class ProductControllerTI {
 		
 		 resultado.andExpect(status().isUnprocessableEntity());
 	}
+	//
+
+	@DisplayName("Inserção de produto retorna 422 e mensagens customizadas com dados inválidos quando logado como admin e campo price for negativo")
+	@Test
+	public void insertDeProductDeveRetorna422QuandoPriceForNegativoELogadoComoAdmin() throws Exception {
+		
+		product.setPrice(-200.00);
+		productDTO = new ProductDTO(product);
+		String body = objectMapper.writeValueAsString(productDTO);
+		
+		 ResultActions resultado = mockMvc.perform(post("/products")
+				.header("Authorization", "Bearer " + adminToken)
+				.content(body)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON));
+		
+		 resultado.andExpect(status().isUnprocessableEntity());
+	}
 }
