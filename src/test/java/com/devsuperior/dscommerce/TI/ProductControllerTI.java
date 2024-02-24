@@ -91,12 +91,29 @@ public class ProductControllerTI {
 		 resultado.andExpect(jsonPath("$.price").isNotEmpty());
 		 
 	}
-	
+
 	@DisplayName("Inserção de produto retorna 422 e mensagens customizadas com dados inválidos quando logado como admin e campo name for inválido")
 	@Test
 	public void insertDeProductDeveRetorna422QuandoNomeForInvalidoELogadoComoAdmin() throws Exception {
 		
 		product.setName("");
+		productDTO = new ProductDTO(product);
+		String body = objectMapper.writeValueAsString(productDTO);
+		
+		 ResultActions resultado = mockMvc.perform(post("/products")
+				.header("Authorization", "Bearer " + adminToken)
+				.content(body)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON));
+		
+		 resultado.andExpect(status().isUnprocessableEntity());
+	}
+	
+	@DisplayName("Inserção de produto retorna 422 e mensagens customizadas com dados inválidos quando logado como admin e campo description for inválido")
+	@Test
+	public void insertDeProductDeveRetorna422QuandoDescriptionForInvalidoELogadoComoAdmin() throws Exception {
+		
+		product.setDescription("");
 		productDTO = new ProductDTO(product);
 		String body = objectMapper.writeValueAsString(productDTO);
 		
