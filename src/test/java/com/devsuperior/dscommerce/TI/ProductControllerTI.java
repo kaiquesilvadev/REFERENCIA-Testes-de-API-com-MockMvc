@@ -21,7 +21,6 @@ import com.devsuperior.dscommerce.dto.ProductDTO;
 import com.devsuperior.dscommerce.entities.Product;
 import com.devsuperior.dscommerce.fabricaOBJ.criaProduct;
 import com.devsuperior.dscommerce.util.TokenUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
@@ -39,7 +38,7 @@ public class ProductControllerTI {
 	@Autowired
 	private TokenUtil tokenUtil;
 
-	private String ClienteToken, adminToken, ivalidoToken;
+	private String ClienteToken, adminToken;
 	private Product product;
 	private ProductDTO productDTO;
 
@@ -48,7 +47,6 @@ public class ProductControllerTI {
 		// token
 		adminToken = tokenUtil.obtainAccessToken(mockMvc, "alex@gmail.com", "123456");
 		ClienteToken = tokenUtil.obtainAccessToken(mockMvc, "maria@gmail.com", "123456");
-		ivalidoToken = adminToken + "wedw";
 		
 		//var
 		product = criaProduct.novoProduct();
@@ -194,5 +192,20 @@ public class ProductControllerTI {
 				.accept(MediaType.APPLICATION_JSON));
 		
 		 resultado.andExpect(status().isForbidden());
+	}
+	
+	@DisplayName("Inserção de produto retorna 401 quando não logado como admin ou cliente")
+	@Test
+	public void insertDeProductDeveRetorna401QuandoNaologado() throws Exception {
+		
+		productDTO = new ProductDTO(product);
+		String body = objectMapper.writeValueAsString(productDTO);
+		
+		 ResultActions resultado = mockMvc.perform(post("/products")
+				.content(body)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON));
+		
+		 resultado.andExpect(status().isUnauthorized());
 	}
 }
