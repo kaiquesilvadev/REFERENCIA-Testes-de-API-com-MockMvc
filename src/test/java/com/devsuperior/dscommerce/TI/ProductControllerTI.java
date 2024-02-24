@@ -21,6 +21,7 @@ import com.devsuperior.dscommerce.dto.ProductDTO;
 import com.devsuperior.dscommerce.entities.Product;
 import com.devsuperior.dscommerce.fabricaOBJ.criaProduct;
 import com.devsuperior.dscommerce.util.TokenUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
@@ -68,9 +69,9 @@ public class ProductControllerTI {
 				"https://raw.githubusercontent.com/devsuperior/dscatalog-resources/master/backend/img/3-big.jpg"));
 	}
 
-	@DisplayName("")
+	@DisplayName("Inserção de produto insere produto com dados válidos quando logado como admin")
 	@Test
-	public void tets() throws Exception {
+	public void insertDEProductInsereProdutoComDadosValidosQuandoLogadoComoAdmin() throws Exception {
 
 		productDTO = new ProductDTO(product);
 		String body = objectMapper.writeValueAsString(productDTO);
@@ -84,5 +85,27 @@ public class ProductControllerTI {
 				.andDo(MockMvcResultHandlers.print());
 
 		 resultado.andExpect(status().isCreated());
+		 resultado.andExpect(jsonPath("$.id").value(26L));
+		 resultado.andExpect(jsonPath("$.name").isNotEmpty());
+		 resultado.andExpect(jsonPath("$.description").isNotEmpty());
+		 resultado.andExpect(jsonPath("$.price").isNotEmpty());
+		 
+	}
+	
+	@DisplayName("Inserção de produto retorna 422 e mensagens customizadas com dados inválidos quando logado como admin e campo name for inválido")
+	@Test
+	public void insertDeProductDeveRetorna422QuandoNomeForInvalidoELogadoComoAdmin() throws Exception {
+		
+		product.setName("");
+		productDTO = new ProductDTO(product);
+		String body = objectMapper.writeValueAsString(productDTO);
+		
+		 ResultActions resultado = mockMvc.perform(post("/products")
+				.header("Authorization", "Bearer " + adminToken)
+				.content(body)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON));
+		
+		 resultado.andExpect(status().isUnprocessableEntity());
 	}
 }
