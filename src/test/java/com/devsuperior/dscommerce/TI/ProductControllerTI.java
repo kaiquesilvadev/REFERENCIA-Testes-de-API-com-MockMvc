@@ -47,6 +47,8 @@ public class ProductControllerTI {
 	void setUp() throws Exception {
 		// token
 		adminToken = tokenUtil.obtainAccessToken(mockMvc, "alex@gmail.com", "123456");
+		ClienteToken = tokenUtil.obtainAccessToken(mockMvc, "maria@gmail.com", "123456");
+		ivalidoToken = adminToken + "wedw";
 		
 		//var
 		product = criaProduct.novoProduct();
@@ -176,5 +178,21 @@ public class ProductControllerTI {
 				.accept(MediaType.APPLICATION_JSON));
 		
 		 resultado.andExpect(status().isUnprocessableEntity());
+	}
+	//Inserção de produto retorna 403 quando logado como cliente
+	@DisplayName("Inserção de produto retorna 403 quando logado como cliente")
+	@Test
+	public void insertDeProductDeveRetorna403QuandologadoComoCliente() throws Exception {
+		
+		productDTO = new ProductDTO(product);
+		String body = objectMapper.writeValueAsString(productDTO);
+		
+		 ResultActions resultado = mockMvc.perform(post("/products")
+				.header("Authorization", "Bearer " + ClienteToken)
+				.content(body)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON));
+		
+		 resultado.andExpect(status().isForbidden());
 	}
 }
