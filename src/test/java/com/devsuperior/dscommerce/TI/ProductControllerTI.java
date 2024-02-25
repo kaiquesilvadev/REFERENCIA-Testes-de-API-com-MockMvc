@@ -253,4 +253,16 @@ public class ProductControllerTI {
 		
 		 resultado.andExpect(status().isBadRequest());
 	}
+	
+	@DisplayName("Deleção de produto retorna 403 quando logado como cliente")
+	@Test
+	public void deleteDeveRetorna403QuandoLogadoComoCliente() throws Exception {
+	
+		 ResultActions resultado = mockMvc.perform(
+				 delete("/products/{idExistente}" , IdDependente)
+				.header("Authorization", "Bearer " + ClienteToken)
+				.accept(MediaType.APPLICATION_JSON));
+		
+		 resultado.andExpect(status().isForbidden());
+	}
 }
