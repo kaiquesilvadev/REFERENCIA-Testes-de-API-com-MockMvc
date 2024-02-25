@@ -227,4 +227,16 @@ public class ProductControllerTI {
 		
 		 resultado.andExpect(status().isNoContent());
 	}
+	
+	@DisplayName("Deleção de produto retorna 404 para produto inexistente quando logado como admin")
+	@Test
+	public void deleteDeveRetorna404QuandoLogadoComAdminEIdInexistente() throws Exception {
+	
+		 ResultActions resultado = mockMvc.perform(
+				 delete("/products/{idExistente}" , idInexistente)
+				.header("Authorization", "Bearer " + adminToken)
+				.accept(MediaType.APPLICATION_JSON));
+		
+		 resultado.andExpect(status().isNotFound());
+	}
 }
