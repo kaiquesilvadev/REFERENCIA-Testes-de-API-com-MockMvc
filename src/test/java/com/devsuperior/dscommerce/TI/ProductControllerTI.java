@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.devsuperior.dscommerce.dto.ProductDTO;
@@ -240,14 +241,13 @@ public class ProductControllerTI {
 		 resultado.andExpect(status().isNotFound());
 	}
 	
-	// TODO verificar o ProductService 
-	
 	@DisplayName("Deleção de produto retorna 400 para produto dependente quando logado como admin")
 	@Test
+	@Transactional(propagation = Propagation.SUPPORTS)
 	public void deleteDeveRetorna400QuandoLogadoComAdminEIdDependente() throws Exception {
 	
 		 ResultActions resultado = mockMvc.perform(
-				 delete("/products/{idExistente}" , IdDependente)
+				 delete("/products/{IdDependente}" , IdDependente)
 				.header("Authorization", "Bearer " + adminToken)
 				.accept(MediaType.APPLICATION_JSON));
 		
