@@ -265,4 +265,15 @@ public class ProductControllerTI {
 		
 		 resultado.andExpect(status().isForbidden());
 	}
+	
+	@DisplayName("Deleção de produto retorna 401 quando não logado como admin ou cliente")
+	@Test
+	public void deleteDeveRetorna401QuandoNaoEstiverLogado() throws Exception {
+	
+		 ResultActions resultado = mockMvc.perform(
+				 delete("/products/{idExistente}" , IdDependente)
+				.accept(MediaType.APPLICATION_JSON));
+		
+		 resultado.andExpect(status().isUnauthorized());
+	}
 }
