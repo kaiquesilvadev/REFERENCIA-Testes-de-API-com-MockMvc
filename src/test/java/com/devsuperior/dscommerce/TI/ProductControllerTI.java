@@ -1,5 +1,6 @@
 package com.devsuperior.dscommerce.TI;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -41,6 +42,8 @@ public class ProductControllerTI {
 	private String ClienteToken, adminToken;
 	private Product product;
 	private ProductDTO productDTO;
+	
+	private Long idExistente , idInexistente , IdComposto;
 
 	@BeforeEach
 	void setUp() throws Exception {
@@ -51,6 +54,10 @@ public class ProductControllerTI {
 		//var
 		product = criaProduct.novoProduct();
 		productNome = "Macbook";
+		
+		IdComposto = 1L;
+		idExistente = 4L ;
+		idInexistente = 1000L ;
 
 	}
 
@@ -207,5 +214,17 @@ public class ProductControllerTI {
 				.accept(MediaType.APPLICATION_JSON));
 		
 		 resultado.andExpect(status().isUnauthorized());
+	}
+	
+	@DisplayName("Deleção de produto deleta produto existente quando logado como admin")
+	@Test
+	public void deleteDeveDeletarQuandoLogadoComAdmin() throws Exception {
+	
+		 ResultActions resultado = mockMvc.perform(
+				 delete("/products/{idExistente}" , idExistente)
+				.header("Authorization", "Bearer " + adminToken)
+				.accept(MediaType.APPLICATION_JSON));
+		
+		 resultado.andExpect(status().isNoContent());
 	}
 }
