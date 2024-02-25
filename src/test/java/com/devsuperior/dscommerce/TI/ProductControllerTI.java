@@ -1,5 +1,6 @@
 package com.devsuperior.dscommerce.TI;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -15,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.devsuperior.dscommerce.dto.ProductDTO;
@@ -41,6 +43,8 @@ public class ProductControllerTI {
 	private String ClienteToken, adminToken;
 	private Product product;
 	private ProductDTO productDTO;
+	
+	private Long idExistente , idInexistente , IdDependente;
 
 	@BeforeEach
 	void setUp() throws Exception {
@@ -51,6 +55,10 @@ public class ProductControllerTI {
 		//var
 		product = criaProduct.novoProduct();
 		productNome = "Macbook";
+		
+		IdDependente = 3L;
+		idExistente = 4L ;
+		idInexistente = 1000L ;
 
 	}
 
@@ -204,6 +212,66 @@ public class ProductControllerTI {
 		 ResultActions resultado = mockMvc.perform(post("/products")
 				.content(body)
 				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON));
+		
+		 resultado.andExpect(status().isUnauthorized());
+	}
+	
+	@DisplayName("Deleção de produto deleta produto existente quando logado como admin")
+	@Test
+	public void deleteDeveDeletarQuandoLogadoComAdmin() throws Exception {
+	
+		 ResultActions resultado = mockMvc.perform(
+				 delete("/products/{idExistente}" , idExistente)
+				.header("Authorization", "Bearer " + adminToken)
+				.accept(MediaType.APPLICATION_JSON));
+		
+		 resultado.andExpect(status().isNoContent());
+	}
+	
+	@DisplayName("Deleção de produto retorna 404 para produto inexistente quando logado como admin")
+	@Test
+	public void deleteDeveRetorna404QuandoLogadoComAdminEIdInexistente() throws Exception {
+	
+		 ResultActions resultado = mockMvc.perform(
+				 delete("/products/{idExistente}" , idInexistente)
+				.header("Authorization", "Bearer " + adminToken)
+				.accept(MediaType.APPLICATION_JSON));
+		
+		 resultado.andExpect(status().isNotFound());
+	}
+	
+	@DisplayName("Deleção de produto retorna 400 para produto dependente quando logado como admin")
+	@Test
+	@Transactional(propagation = Propagation.SUPPORTS)
+	public void deleteDeveRetorna400QuandoLogadoComAdminEIdDependente() throws Exception {
+	
+		 ResultActions resultado = mockMvc.perform(
+				 delete("/products/{IdDependente}" , IdDependente)
+				.header("Authorization", "Bearer " + adminToken)
+				.accept(MediaType.APPLICATION_JSON));
+		
+		 resultado.andExpect(status().isBadRequest());
+	}
+	
+	@DisplayName("Deleção de produto retorna 403 quando logado como cliente")
+	@Test
+	public void deleteDeveRetorna403QuandoLogadoComoCliente() throws Exception {
+	
+		 ResultActions resultado = mockMvc.perform(
+				 delete("/products/{idExistente}" , IdDependente)
+				.header("Authorization", "Bearer " + ClienteToken)
+				.accept(MediaType.APPLICATION_JSON));
+		
+		 resultado.andExpect(status().isForbidden());
+	}
+	
+	@DisplayName("Deleção de produto retorna 401 quando não logado como admin ou cliente")
+	@Test
+	public void deleteDeveRetorna401QuandoNaoEstiverLogado() throws Exception {
+	
+		 ResultActions resultado = mockMvc.perform(
+				 delete("/products/{idExistente}" , IdDependente)
 				.accept(MediaType.APPLICATION_JSON));
 		
 		 resultado.andExpect(status().isUnauthorized());
