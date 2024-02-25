@@ -43,7 +43,7 @@ public class ProductControllerTI {
 	private Product product;
 	private ProductDTO productDTO;
 	
-	private Long idExistente , idInexistente , IdComposto;
+	private Long idExistente , idInexistente , IdDependente;
 
 	@BeforeEach
 	void setUp() throws Exception {
@@ -55,7 +55,7 @@ public class ProductControllerTI {
 		product = criaProduct.novoProduct();
 		productNome = "Macbook";
 		
-		IdComposto = 1L;
+		IdDependente = 3L;
 		idExistente = 4L ;
 		idInexistente = 1000L ;
 
@@ -238,5 +238,19 @@ public class ProductControllerTI {
 				.accept(MediaType.APPLICATION_JSON));
 		
 		 resultado.andExpect(status().isNotFound());
+	}
+	
+	// TODO verificar o ProductService 
+	
+	@DisplayName("Deleção de produto retorna 400 para produto dependente quando logado como admin")
+	@Test
+	public void deleteDeveRetorna400QuandoLogadoComAdminEIdDependente() throws Exception {
+	
+		 ResultActions resultado = mockMvc.perform(
+				 delete("/products/{idExistente}" , IdDependente)
+				.header("Authorization", "Bearer " + adminToken)
+				.accept(MediaType.APPLICATION_JSON));
+		
+		 resultado.andExpect(status().isBadRequest());
 	}
 }
