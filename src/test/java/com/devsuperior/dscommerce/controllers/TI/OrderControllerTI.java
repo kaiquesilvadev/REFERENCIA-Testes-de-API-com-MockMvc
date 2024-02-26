@@ -60,7 +60,7 @@ public class OrderControllerTI {
 		public void findByIdDeveRetornarPedidoQuandoLogadoComoClienteEPedidoPertencerAOUsuario() throws Exception {
 		
 			 ResultActions resultado = mockMvc.perform(get("/orders/{id}" , idExistenteMaria)
-						.header("Authorization", "Bearer " +  ClienteToken)
+					.header("Authorization", "Bearer " +  ClienteToken)
 					.accept(MediaType.APPLICATION_JSON));
 			
 			   resultado.andExpect(status().isOk());
@@ -69,12 +69,22 @@ public class OrderControllerTI {
 		
 		@DisplayName("Busca de pedido por id retorna 403 quando pedido não pertence ao usuário (com perfil de cliente)")
 		@Test
-		public void findByIdDeveRetornar() throws Exception {
+		public void findByIdDeveRetornar403QuandoPedidoNaoPertenceAOUsuarioLogadoComoCliente() throws Exception {
 		
 			 ResultActions resultado = mockMvc.perform(get("/orders/{id}" , idExistenteAlex)
 						.header("Authorization", "Bearer " +  ClienteToken)
 					.accept(MediaType.APPLICATION_JSON));
 			
 			   resultado.andExpect(status().isForbidden());
+		}
+		
+		@DisplayName("Busca de pedido por id retorna 401 quando não logado como admin ou cliente")
+		@Test
+		public void findByIdDeveRetornar401QuandoNaoLogado() throws Exception {
+		
+			 ResultActions resultado = mockMvc.perform(get("/orders/{id}" , idExistenteAlex)
+					.accept(MediaType.APPLICATION_JSON));
+			
+			   resultado.andExpect(status().isUnauthorized());
 		}
 }
