@@ -48,8 +48,8 @@ public class OrderControllerTI {
 	public void findByIdDeveRetornaPedidoQuandoExistente() throws Exception {
 		
 	   ResultActions resultado = mockMvc.perform(get("/orders/{id}" , idExistenteAlex)
-				.header("Authorization", "Bearer " + adminToken)
-				.accept(MediaType.APPLICATION_PROBLEM_JSON));
+					.header("Authorization", "Bearer " + adminToken)
+					.accept(MediaType.APPLICATION_PROBLEM_JSON));
 	   
 	   resultado.andExpect(status().isOk());
 	   resultado.andExpect(jsonPath("$.id").value(idExistenteAlex));
@@ -60,7 +60,7 @@ public class OrderControllerTI {
 		public void findByIdDeveRetornarPedidoQuandoLogadoComoClienteEPedidoPertencerAOUsuario() throws Exception {
 		
 			 ResultActions resultado = mockMvc.perform(get("/orders/{id}" , idExistenteMaria)
-					.header("Authorization", "Bearer " +  ClienteToken)
+				    .header("Authorization", "Bearer " +  ClienteToken)
 					.accept(MediaType.APPLICATION_JSON));
 			
 			   resultado.andExpect(status().isOk());
@@ -72,7 +72,7 @@ public class OrderControllerTI {
 		public void findByIdDeveRetornar403QuandoPedidoNaoPertenceAOUsuarioLogadoComoCliente() throws Exception {
 		
 			 ResultActions resultado = mockMvc.perform(get("/orders/{id}" , idExistenteAlex)
-						.header("Authorization", "Bearer " +  ClienteToken)
+					.header("Authorization", "Bearer " +  ClienteToken)
 					.accept(MediaType.APPLICATION_JSON));
 			
 			   resultado.andExpect(status().isForbidden());
@@ -86,5 +86,27 @@ public class OrderControllerTI {
 					.accept(MediaType.APPLICATION_JSON));
 			
 			   resultado.andExpect(status().isUnauthorized());
+		}
+		
+		@DisplayName("Busca de pedido por id retorna 404 para pedido inexistente quando logado como admin")
+		@Test
+		public void findByIdDeveRetornar404QuandoPedidoInexistenteLogadoComoAdmin() throws Exception {
+		
+			 ResultActions resultado = mockMvc.perform(get("/orders/{id}" , idInexistente)
+					.header("Authorization", "Bearer " + adminToken)
+					.accept(MediaType.APPLICATION_JSON));
+			
+			   resultado.andExpect(status().isNotFound());
+		}
+		
+		@DisplayName("Busca de pedido por id retorna 404 para pedido inexistente quando logado como cliente")
+		@Test
+		public void findByIdDeveRetornar404QuandoPedidoInexistenteLogadoComoCliente() throws Exception {
+		
+			 ResultActions resultado = mockMvc.perform(get("/orders/{id}" , idInexistente)
+					.header("Authorization", "Bearer " + ClienteToken)
+					.accept(MediaType.APPLICATION_JSON));
+			
+			   resultado.andExpect(status().isNotFound());
 		}
 }
