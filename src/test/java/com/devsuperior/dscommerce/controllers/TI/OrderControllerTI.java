@@ -1,6 +1,5 @@
 package com.devsuperior.dscommerce.controllers.TI;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -56,10 +55,9 @@ public class OrderControllerTI {
 	   resultado.andExpect(jsonPath("$.id").value(idExistenteAlex));
 	}
 	
-	//
 		@DisplayName("Busca de pedido por id retorna pedido existente quando logado como cliente e o pedido pertence ao usuário")
 		@Test
-		public void deleteDeveRetorna401QuandoNaoEstiverLogado() throws Exception {
+		public void findByIdDeveRetornarPedidoQuandoLogadoComoClienteEPedidoPertencerAOUsuario() throws Exception {
 		
 			 ResultActions resultado = mockMvc.perform(get("/orders/{id}" , idExistenteMaria)
 						.header("Authorization", "Bearer " +  ClienteToken)
@@ -67,5 +65,16 @@ public class OrderControllerTI {
 			
 			   resultado.andExpect(status().isOk());
 			   resultado.andExpect(jsonPath("$.id").value(idExistenteMaria));
+		}
+		
+		@DisplayName("Busca de pedido por id retorna 403 quando pedido não pertence ao usuário (com perfil de cliente)")
+		@Test
+		public void findByIdDeveRetornar() throws Exception {
+		
+			 ResultActions resultado = mockMvc.perform(get("/orders/{id}" , idExistenteAlex)
+						.header("Authorization", "Bearer " +  ClienteToken)
+					.accept(MediaType.APPLICATION_JSON));
+			
+			   resultado.andExpect(status().isForbidden());
 		}
 }
