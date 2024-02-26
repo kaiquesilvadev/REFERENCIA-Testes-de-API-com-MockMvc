@@ -1,5 +1,6 @@
 package com.devsuperior.dscommerce.controllers.TI;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,7 +30,7 @@ public class OrderControllerTI {
 	private TokenUtil tokenUtil;
 
 	private String ClienteToken, adminToken;
-	private Long idExistente , idInexistente ;
+	private Long idExistenteAlex , idInexistente , idExistenteMaria ;
 
 	@BeforeEach
 	void setUp() throws Exception {
@@ -38,7 +39,8 @@ public class OrderControllerTI {
 		ClienteToken = tokenUtil.obtainAccessToken(mockMvc, "maria@gmail.com", "123456");
 		
 		//var
-		idExistente = 3L ;
+		idExistenteMaria = 1L;
+		idExistenteAlex = 2L ;
 		idInexistente = 1000L ;
 	}
 	
@@ -46,11 +48,24 @@ public class OrderControllerTI {
 	@Test
 	public void findByIdDeveRetornaPedidoQuandoExistente() throws Exception {
 		
-	   ResultActions resultado = mockMvc.perform(get("/orders/{id}" , idExistente)
+	   ResultActions resultado = mockMvc.perform(get("/orders/{id}" , idExistenteAlex)
 				.header("Authorization", "Bearer " + adminToken)
 				.accept(MediaType.APPLICATION_PROBLEM_JSON));
 	   
 	   resultado.andExpect(status().isOk());
-	   resultado.andExpect(jsonPath("$.id").value(idExistente));
+	   resultado.andExpect(jsonPath("$.id").value(idExistenteAlex));
 	}
+	
+	//
+		@DisplayName("Busca de pedido por id retorna pedido existente quando logado como cliente e o pedido pertence ao usuário")
+		@Test
+		public void deleteDeveRetorna401QuandoNaoEstiverLogado() throws Exception {
+		
+			 ResultActions resultado = mockMvc.perform(get("/orders/{id}" , idExistenteMaria)
+						.header("Authorization", "Bearer " +  ClienteToken)
+					.accept(MediaType.APPLICATION_JSON));
+			
+			   resultado.andExpect(status().isOk());
+			   resultado.andExpect(jsonPath("$.id").value(idExistenteMaria));
+		}
 }
